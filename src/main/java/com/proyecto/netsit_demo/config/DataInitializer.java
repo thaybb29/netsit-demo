@@ -35,13 +35,19 @@ public class DataInitializer implements CommandLineRunner {
             admin.setApellido("Sistema");
             admin.setEmail("admin@netsit.com");
             admin.setUsername("admin");
-            //Encriptar contraseña
-            admin.setPassword(passwordEncoder.encode("admin123"));
+
+            // Contraseña tomada de variable de entorno; fallback solo para desarrollo local
+            String defaultPassword = System.getenv("ADMIN_DEFAULT_PASSWORD");
+            if (defaultPassword == null || defaultPassword.isBlank()) {
+                defaultPassword = "admin123"; // fallback solo para desarrollo local
+            }
+            admin.setPassword(passwordEncoder.encode(defaultPassword));
+
             admin.setActivo(true);
             admin.setRoles(Set.of(rolAdmin));
 
             usuarioRepository.save(admin);
-            System.out.println(">>> Usuario 'admin' creado automáticamente con éxito (Password: admin123).");
+            System.out.println(">>> Usuario 'admin' creado automáticamente con éxito.");
         }
     }
 }

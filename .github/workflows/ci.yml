@@ -23,8 +23,11 @@ jobs:
         run: mvn -B clean compile
 
       - name: Ejecutar tests
+        env:
+          ADMIN_DEFAULT_PASSWORD: ${{ secrets.ADMIN_DEFAULT_PASSWORD }}
+          ASTERISK_AMI_PASSWORD: ${{ secrets.ASTERISK_AMI_PASSWORD }}
         run: mvn -B test
-        
+
       - name: Reporte de cobertura JaCoCo
         run: mvn jacoco:report
 
