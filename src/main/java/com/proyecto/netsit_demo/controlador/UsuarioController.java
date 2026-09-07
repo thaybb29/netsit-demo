@@ -26,6 +26,11 @@ public class UsuarioController {
     public ResponseEntity<List<Usuario>> obtenerUsuarios() {
         return ResponseEntity.ok(usuarioRepository.findAll());
     }
+    
+    @GetMapping("/estado")
+    public ResponseEntity<String> estado() {
+        return ResponseEntity.ok("OK");
+    }
 
     @PostMapping("/crear")
     public ResponseEntity<Usuario> crearUsuario(
