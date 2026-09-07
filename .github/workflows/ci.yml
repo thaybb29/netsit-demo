@@ -21,3 +21,6 @@ jobs:
 
       - name: Build con Maven
         run: mvn -B clean compile
+
+      - name: Ejecutar tests
+        run: mvn -B test
