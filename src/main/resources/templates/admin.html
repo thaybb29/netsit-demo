@@ -1,0 +1,3203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>NetSit | Panel de Administración</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+        :root {
+            --bg-base: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f1f5f9;
+            --border-color: #e2e8f0;
+            --border-hover: #cbd5e1;
+
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+
+            --brand-primary: #2563eb;
+            --brand-primary-hover: #1d4ed8;
+            --brand-primary-light: #eff6ff;
+
+            --success: #10b981;
+            --success-light: #ecfdf5;
+
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+
+            --shadow-md:
+                0 4px 6px -1px rgba(0, 0, 0, 0.07),
+                0 2px 4px -1px rgba(0, 0, 0, 0.04);
+
+            --shadow-lg:
+                0 10px 15px -3px rgba(0, 0, 0, 0.08),
+                0 4px 6px -2px rgba(0, 0, 0, 0.03);
+
+            --transition-fast:
+                all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-base);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-hover);
+            border-radius: 4px;
+        }
+
+        /* NAVBAR */
+        .top-navbar {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            z-index: 100;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            height: 32px;
+            width: auto;
+        }
+
+        .brand-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .brand-badge {
+            background-color: var(--brand-primary-light);
+            color: var(--brand-primary);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+        }
+
+        .sys-status-pills {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-subtle);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--success);
+            box-shadow: 0 0 0 2px var(--success-light);
+        }
+
+        .user-profile-widget {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .avatar-circle {
+            width: 32px;
+            height: 32px;
+            background-color: var(--brand-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .logout-btn-corp {
+            background-color: var(--bg-surface);
+            color: var(--danger);
+            border: 1px solid var(--border-color);
+            padding: 7px 14px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition-fast);
+        }
+
+        .logout-btn-corp:hover {
+            background-color: var(--danger-light);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        /* WORKSPACE */
+        .app-workspace {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 57px);
+            overflow: hidden;
+        }
+
+        /* SIDEBAR */
+        .sidebar-dock {
+            width: 250px;
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--border-color);
+            padding: 24px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .dock-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin: 16px 12px 8px 12px;
+            font-weight: 700;
+        }
+
+        .sidebar-dock .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+            padding: 10px 14px;
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition-fast);
+        }
+
+        .sidebar-dock .nav-link i {
+            width: 18px;
+            text-align: center;
+            font-size: 15px;
+            color: var(--text-muted);
+        }
+
+        .sidebar-dock .nav-link:hover {
+            background-color: var(--bg-subtle);
+            color: var(--text-primary);
+        }
+
+        .sidebar-dock .nav-link.active {
+            background-color: var(--brand-primary-light);
+            color: var(--brand-primary);
+            font-weight: 600;
+        }
+
+        .sidebar-dock .nav-link.active i {
+            color: var(--brand-primary);
+        }
+
+        /* CONTENIDO */
+        .viewport-container {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            background-color: var(--bg-base);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .dashboard-title h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.4px;
+        }
+
+        .dashboard-title p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* TARJETAS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .corp-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-fast);
+        }
+
+        .corp-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--border-hover);
+        }
+
+        .corp-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .corp-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background-color: var(--brand-primary-light);
+            color: var(--brand-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .corp-card-value {
+            font-size: 34px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 14px 0 6px 0;
+            letter-spacing: -1px;
+        }
+
+        /* DISPOSITIVOS */
+        .device-status-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .device-status-item {
+            background-color: var(--bg-subtle);
+            padding: 10px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .device-status-item .status-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .device-status-item .status-count {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* HERRAMIENTAS */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .tool-action-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-fast);
+        }
+
+        .tool-action-card:hover {
+            border-color: var(--brand-primary);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .tool-action-card i {
+            font-size: 20px;
+            color: var(--brand-primary);
+            background-color: var(--brand-primary-light);
+            padding: 14px;
+            border-radius: var(--radius-md);
+        }
+
+        .tool-action-card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .tool-action-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* TABLAS */
+        .table-container {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            margin-top: 16px;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: var(--bg-subtle);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 14px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 16px 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+        }
+
+        /* CONSOLA DE RESULTADOS (DISEÑO CLARO - AUTO-AJUSTABLE) */
+        pre {
+            font-family: 'JetBrains Mono', monospace !important;
+            background-color: var(--bg-subtle) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* MODALES */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            margin: 5% auto;
+            padding: 32px;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 550px;
+            position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px 14px;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: var(--transition-fast);
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--brand-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* BOTONES */
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition-fast);
+        }
+
+        .btn-primary {
+            background-color: var(--brand-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--brand-primary-hover);
+        }
+
+        .btn-outline-primary {
+            background-color: var(--bg-surface);
+            color: var(--brand-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--brand-primary-light);
+            border-color: var(--brand-primary);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .alert-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .alert-banner.advertencia {
+            background-color: var(--warning-light);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .alert-banner.critico {
+            background-color: var(--danger-light);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+    
+
+        /* ================================
+           GESTIÓN DE USUARIOS
+        ================================ */
+
+        .users-header {
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .users-header .dashboard-title {
+            width: 100%;
+        }
+
+        .users-header .dashboard-title h2 {
+            margin-bottom: 6px;
+        }
+
+        .users-header .dashboard-title p {
+            margin: 0;
+        }
+
+        .users-create-row {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .users-create-row .btn {
+            min-width: 190px;
+        }
+
+        .users-filters-card {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .users-filters-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--text-primary);
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .users-filters-title i {
+            color: var(--brand-primary);
+        }
+
+        .users-filters-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .users-filters-grid .form-field {
+            min-width: 0;
+        }
+
+        .users-filters-grid .form-field label i {
+            color: var(--brand-primary);
+            margin-right: 4px;
+        }
+
+        .users-filters-grid input,
+        .users-filters-grid select {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .users-filter-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 22px;
+        }
+
+        .users-filter-actions .btn {
+            min-width: 170px;
+        }
+
+        .users-table-card {
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .users-table-card .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .users-table-card .toolbar > div {
+            min-width: 0;
+        }
+
+        .users-table-subtitle {
+            display: block;
+            margin-top: 4px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .users-table-card .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .users-table-card table {
+            width: 100%;
+            min-width: 900px;
+        }
+
+        .users-table-card th {
+            white-space: nowrap;
+        }
+
+        .users-table-card td {
+            vertical-align: middle;
+        }
+
+        .users-form-card {
+            width: 100%;
+            max-width: 760px;
+        }
+
+        .users-form-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 620px;
+        }
+
+        .users-form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 1100px) {
+            .users-filters-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 700px) {
+            .users-filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .users-filter-actions {
+                justify-content: flex-start;
+            }
+
+            .users-table-card .toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        .hidden { display: none !important; }
+        .toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+        .toolbar h3 { font-size:15px; color:var(--text-primary); }
+        .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; }
+        .status-message { margin-top:16px; padding:12px 14px; border-radius:var(--radius-md); background:var(--bg-subtle); color:var(--text-secondary); font-size:13px; min-height:42px; }
+        .badge { display:inline-flex; align-items:center; padding:4px 9px; border-radius:999px; font-size:11px; font-weight:700; }
+        .badge-ok { background:var(--success-light); color:#047857; }
+        .badge-warn { background:var(--warning-light); color:#b45309; }
+        .badge-danger { background:var(--danger-light); color:#b91c1c; }
+        .form-field { display:flex; flex-direction:column; gap:6px; }
+        .form-field label { margin-bottom:0; }
+        .section-note { color:var(--text-secondary); font-size:13px; line-height:1.6; }
+        .traffic-controls { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
+        .protocol-grid { grid-template-columns:repeat(2,minmax(260px,1fr)); }
+        .protocol-http { border-left:4px solid #2563eb; }
+        .protocol-voip { border-left:4px solid #10b981; }
+        .voip-card-total { border-left: 4px solid var(--brand-primary); }
+        .voip-card-online { border-left: 4px solid var(--success); }
+        .voip-card-offline { border-left: 4px solid var(--danger); }
+        .voip-card-active { border-left: 4px solid var(--warning); }
+        .protocol-streaming { border-left:4px solid #ef4444; }
+        .protocol-other { border-left:4px solid #94a3b8; }
+        @media (max-width: 800px) { .sidebar-dock { width:210px; } .viewport-container { padding:20px; } .protocol-grid { grid-template-columns:1fr; } }
+        @media (max-width: 640px) { .app-workspace { height:auto; min-height:calc(100vh - 57px); } .sidebar-dock { width:100%; border-right:none; border-bottom:1px solid var(--border-color); } .app-workspace { flex-direction:column; } }
+
+        /* RESULTADO DEL ESCANEO */
+
+.scan-output {
+    margin-top: 12px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+    white-space: normal;
+    overflow: hidden;
+}
+
+.scan-summary {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    padding: 16px 18px;
+    margin-bottom: 14px;
+}
+
+.scan-summary-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.scan-summary-row {
+    margin: 7px 0;
+    font-size: 14px;
+}
+
+.scan-security {
+    border: 1px solid var(--danger);
+    background: var(--bg-surface);
+    padding: 16px 18px;
+    margin-bottom: 18px;
+}
+
+.scan-security-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.scan-counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.scan-count.critical {
+    color: var(--danger);
+}
+
+.scan-count.high {
+    color: #f97316;
+}
+
+.scan-count.medium {
+    color: var(--warning);
+}
+
+.scan-count.low {
+    color: var(--success);
+}
+
+.scan-open-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 16px 0 10px;
+}
+
+.scan-port {
+    padding: 13px 14px;
+    margin: 8px 0;
+    border-left: 4px solid;
+    background: var(--bg-subtle);
+    font-size: 14px;
+}
+
+.scan-port.critical {
+    border-left-color: var(--danger);
+    background: var(--danger-light);
+}
+
+.scan-port.high {
+    border-left-color: #f97316;
+    background: #fff7ed;
+}
+
+.scan-port.medium {
+    border-left-color: var(--warning);
+    background: var(--warning-light);
+}
+
+.scan-port.low {
+    border-left-color: var(--success);
+    background: var(--success-light);
+}
+
+.scan-port-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.scan-port-name {
+    font-weight: 700;
+}
+
+.scan-risk {
+    font-weight: 700;
+}
+
+.scan-risk.critical {
+    color: var(--danger);
+}
+
+.scan-risk.high {
+    color: #f97316;
+}
+
+.scan-risk.medium {
+    color: var(--warning);
+}
+
+.scan-risk.low {
+    color: var(--success);
+}
+
+.scan-details {
+    margin-top: 9px;
+    padding-top: 9px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   LOGS DE ACTIVIDAD
+   ========================================================= */
+#logsSection {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+#logsSection .logs-filters-card {
+    width: 100%;
+    margin-bottom: 22px;
+    padding: 22px 24px;
+}
+#logsSection .logs-filters-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+#logsSection .logs-filters-grid {
+    display: grid;
+    grid-template-columns: minmax(180px, .8fr) minmax(220px, 1fr) auto;
+    gap: 18px 20px;
+    align-items: end;
+}
+#logsSection .logs-filter-actions {
+    display: flex;
+    gap: 10px;
+    align-items: end;
+}
+#logsSection .logs-table-card {
+    width: 100%;
+    overflow: hidden;
+}
+#logsSection .logs-table-subtitle {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+#logsSection .logs-page-info {
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+}
+#logsSection .logs-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 18px 20px 20px;
+}
+@media (max-width: 900px) {
+    #logsSection .logs-filters-grid {
+        grid-template-columns: 1fr;
+    }
+    #logsSection .logs-filter-actions {
+        justify-content: flex-start;
+    }
+}
+
+/* =========================================================
+   AJUSTE FINAL - GESTIÓN DE USUARIOS
+   ========================================================= */
+
+#usersSection {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+#usersSection #usuariosListado {
+    width: 100%;
+    min-width: 0;
+}
+
+#usersSection .users-header {
+    display: block !important;
+    width: 100%;
+    margin: 0 0 20px 0;
+}
+
+#usersSection .users-header .dashboard-title {
+    display: block;
+    width: 100%;
+}
+
+#usersSection .users-header h2 {
+    font-size: 26px;
+    line-height: 1.25;
+    margin: 0 0 6px 0;
+}
+
+#usersSection .users-header p {
+    max-width: 760px;
+    margin: 0;
+}
+
+#usersSection .users-create-row {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+    margin: 0 0 18px 0;
+}
+
+#usersSection .users-create-row .btn {
+    min-width: 180px;
+}
+
+#usersSection .users-filters-card {
+    width: 100%;
+    margin: 0 0 22px 0;
+    padding: 22px 24px;
+}
+
+#usersSection .users-filters-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 20px 0;
+}
+
+#usersSection .users-filters-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px 20px;
+    width: 100%;
+}
+
+#usersSection .users-filters-grid .form-field {
+    width: 100%;
+    min-width: 0;
+}
+
+#usersSection .users-filters-grid input,
+#usersSection .users-filters-grid select {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+}
+
+#usersSection .users-filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 20px;
+}
+
+#usersSection .users-filter-actions .btn {
+    min-width: 165px;
+}
+
+/* Tabla: ancho y columnas FIJOS.
+   Filtrar usuarios solamente cambia las filas, nunca la estructura. */
+#usersSection .users-table-card {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+#usersSection .users-table-card .toolbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+#usersSection .users-table-card .table-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+#usersSection .users-table-card table {
+    width: 100%;
+    min-width: 980px;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+#usersSection .users-table-card th,
+#usersSection .users-table-card td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#usersSection .users-table-card th:nth-child(1),
+#usersSection .users-table-card td:nth-child(1) {
+    width: 14%;
+}
+
+#usersSection .users-table-card th:nth-child(2),
+#usersSection .users-table-card td:nth-child(2) {
+    width: 14%;
+}
+
+#usersSection .users-table-card th:nth-child(3),
+#usersSection .users-table-card td:nth-child(3) {
+    width: 14%;
+}
+
+#usersSection .users-table-card th:nth-child(4),
+#usersSection .users-table-card td:nth-child(4) {
+    width: 20%;
+}
+
+#usersSection .users-table-card th:nth-child(5),
+#usersSection .users-table-card td:nth-child(5) {
+    width: 12%;
+}
+
+#usersSection .users-table-card th:nth-child(6),
+#usersSection .users-table-card td:nth-child(6) {
+    width: 16%;
+}
+
+#usersSection .users-table-card th:nth-child(7),
+#usersSection .users-table-card td:nth-child(7) {
+    width: 10%;
+    text-align: center;
+}
+
+#usersSection .users-table-card td .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* PAGINACIÓN DE USUARIOS */
+#usersSection .users-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 4px 2px;
+    flex-wrap: wrap;
+}
+
+#usersSection .users-pagination-info {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+#usersSection .users-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#usersSection .users-pagination-controls .btn {
+    min-width: 42px;
+    height: 38px;
+    padding: 8px 12px;
+}
+
+#usersSection .users-pagination-page {
+    min-width: 100px;
+    text-align: center;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Cuando la pantalla sea más pequeña, los filtros bajan de forma ordenada. */
+@media (max-width: 1100px) {
+    #usersSection .users-filters-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 700px) {
+    #usersSection .users-filters-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    #usersSection .users-filter-actions {
+        justify-content: flex-start;
+    }
+
+    #usersSection .users-table-card .toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+
+/* ==================== DISPOSITIVOS / DESCUBRIMIENTO ==================== */
+#devicesSection .device-message { padding:12px 14px; border-radius:8px; font-size:13px; }
+#devicesSection .device-message.ok { background:var(--success-light); color:var(--success); }
+#devicesSection .device-message.error { background:var(--danger-light); color:var(--danger); }
+#devicesSection .device-message.info { background:var(--warning-light); color:#92400e; }
+#devicesSection .device-actions { display:flex; gap:6px; flex-wrap:wrap; }
+#devicesSection .device-actions .btn { padding:7px 9px; font-size:12px; }
+#devicesSection .device-name { font-weight:600; }
+#devicesSection .device-sub { display:block; font-size:11px; color:var(--text-secondary); margin-top:3px; }
+</style>
+</head>
+<body>
+
+<header class="top-navbar">
+    <div class="brand-container">
+        <img src="/img/logo-shieldnet.svg" alt="NetSit Logo" class="brand-logo" onerror="this.style.display='none'">
+        <span class="brand-title">NetSit</span>
+        <span class="brand-badge">ADMIN</span>
+    </div>
+    <div class="user-profile-widget">
+        <div class="user-info"><div class="avatar-circle">A</div><span>Administrador</span></div>
+        <a href="/logout" class="logout-btn-corp"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+    </div>
+</header>
+
+<div class="app-workspace">
+    <nav class="sidebar-dock">
+        <span class="dock-label">Monitoreo y Red</span>
+        <a href="javascript:void(0)" class="nav-link active" id="dashboardBtn" onclick="mostrarSeccion('dashboardSection','dashboardBtn')"><i class="fas fa-chart-line"></i> Panel Principal</a>
+        <a href="javascript:void(0)" class="nav-link" id="trafficBtn" onclick="mostrarSeccion('trafficSection','trafficBtn')"><i class="fas fa-exchange-alt"></i> Tráfico de Red</a>
+        <a href="javascript:void(0)" class="nav-link" id="devicesBtn" onclick="mostrarSeccion('devicesSection','devicesBtn')"><i class="fas fa-laptop-house"></i> Dispositivos</a>
+        <span class="dock-label">Servicios</span>
+        <a href="javascript:void(0)" class="nav-link" id="voipBtn" onclick="mostrarSeccion('voipSection','voipBtn')"><i class="fas fa-phone-alt"></i> Telefonía VoIP</a>
+        <a href="javascript:void(0)" class="nav-link" id="qosBtn" onclick="mostrarSeccion('qosSection','qosBtn')"><i class="fas fa-tachometer-alt"></i> Calidad (QoS)</a>
+        <span class="dock-label">Administración</span>
+        <a href="javascript:void(0)" class="nav-link" id="usersBtn" onclick="mostrarSeccion('usersSection','usersBtn')"><i class="fas fa-users-cog"></i> Usuarios</a>
+        <a href="javascript:void(0)" class="nav-link" id="logsBtn" onclick="mostrarSeccion('logsSection','logsBtn')"><i class="fas fa-history"></i> Logs de Actividad</a>
+    </nav>
+
+    <main class="viewport-container" id="mainContent">
+        <section id="dashboardSection">
+            <div class="dashboard-header"><div class="dashboard-title"><h2>Panel Principal</h2>
+            <div class="stats-grid">
+                <div class="corp-card"><div class="corp-card-header"><span>Usuarios Registrados</span><div class="corp-card-icon"><i class="fas fa-users"></i></div></div><div class="corp-card-value" id="userCount" th:text="${cantidadUsuarios}">0</div><span style="font-size:12px;color:var(--success)"><i class="fas fa-check-circle"></i> Sistema activo</span></div>
+                <div class="corp-card"><div class="corp-card-header"><span>Dispositivos Detectados</span><div class="corp-card-icon"><i class="fas fa-network-wired"></i></div></div><div class="corp-card-value" id="totalDevices">0</div><div class="device-status-container"><div class="device-status-item"><span class="status-label">AUTORIZADOS</span><span class="status-count" style="color:var(--success)" id="autorizadosCount">0</span></div><div class="device-status-item"><span class="status-label">DENEGADOS</span><span class="status-count" style="color:var(--danger)" id="noAutorizadosCount">0</span></div><div class="device-status-item"><span class="status-label">DESCONOCIDOS</span><span class="status-count" style="color:var(--warning)" id="desconocidosCount">0</span></div></div></div>
+            </div>
+            <h3 style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:14px;">Diagnósticos Rápidos</h3>
+            <div class="tools-grid"><div class="tool-action-card" onclick="openPingModal()"><i class="fas fa-terminal"></i><div><h3>Hacer Ping</h3><p>Comprobar conectividad ICMP</p></div></div><div class="tool-action-card" onclick="openPortScanModal()"><i class="fas fa-search"></i><div><h3>Escanear puertos</h3><p>Auditar puertos abiertos</p></div></div></div>
+            <div class="corp-card"><div class="corp-card-header"><span>Resultado del diagnóstico</span></div><pre id="diagnosticOutput">Selecciona una herramienta para ejecutar un diagnóstico.</pre></div>
+        </section>
+
+        <section id="trafficSection" class="hidden">
+            <div class="dashboard-header"><div class="dashboard-title"><h2>Monitoreo de Tráfico de Red</h2>
+            <div id="trafficErrorBanner" class="alert-banner critico" style="display:none;"></div>
+            <div id="trafficAlertBanner" class="alert-banner" style="display:none;"></div>
+            <div class="corp-card" style="margin-bottom:24px;">
+                <div class="corp-card-header">
+                    <span><i class="fas fa-cog"></i> Configuración de Alertas</span>
+                    <button class="btn btn-primary" type="button" id="btnConfigUmbrales" onclick="alternarConfiguracionTrafico()">
+                        <i class="fas fa-sliders-h"></i> Definir umbrales
+                    </button>
+                </div>
+                <p style="font-size:13px;color:var(--text-secondary);margin:10px 0 0;">
+
+                <div id="panelConfiguracionTrafico" style="display:none;margin-top:18px;padding:18px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-subtle);">
+                    <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px;">
+                        <div class="form-group" style="flex:1;min-width:200px;margin-bottom:0;">
+                            <label for="umbralAdvertencia"><i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i> Umbral de Advertencia (MB/s)</label>
+                            <input type="number" id="umbralAdvertencia" min="0" step="0.1">
+                        </div>
+                        <div class="form-group" style="flex:1;min-width:200px;margin-bottom:0;">
+                            <label for="umbralCritico"><i class="fas fa-exclamation-circle" style="color:var(--danger)"></i> Umbral Crítico (MB/s)</label>
+                            <input type="number" id="umbralCritico" min="0" step="0.1">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" type="button" onclick="guardarConfiguracionTrafico()">
+                        <i class="fas fa-save"></i> Guardar Configuración
+                    </button>
+                    <div id="configGuardada" class="status-message" style="display:none;margin-top:14px;"></div>
+                </div>
+            </div>
+            <div class="corp-card" style="margin-bottom:24px;">
+                <div class="corp-card-header">
+                    <span><i class="fas fa-chart-area"></i> Captura de Tráfico en Tiempo Real</span>
+                    <span id="trafficStatusBadge" class="badge badge-warn"><i class="fas fa-circle"></i> Detenido</span>
+                </div>
+                <div style="display:flex;gap:14px;flex-wrap:wrap;margin:14px 0 18px;">
+                    <div style="flex:1;min-width:180px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-subtle);">
+                        <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;font-weight:700;">Tráfico total</div>
+                        <div id="valorTotalTrafico" style="font-size:24px;font-weight:700;color:var(--text-primary);margin-top:4px;">0.00 MB/s</div>
+                    </div>
+                    <div id="trafficLastUpdateBox" style="display:none;flex:1;min-width:180px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-subtle);">
+                        <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;font-weight:700;">Última actualización</div>
+                        <div id="trafficLastUpdate" style="font-size:16px;font-weight:600;color:var(--text-primary);margin-top:8px;">--:--:--</div>
+                    </div>
+                </div>
+                <canvas id="trafficChart" height="90"></canvas>
+                <div class="traffic-controls">
+                    <button class="btn btn-primary" onclick="reiniciarMonitoreoTrafico()"><i class="fas fa-redo"></i> Reiniciar Contador</button>
+                    <button class="btn btn-danger" id="btnDetenerTrafico" onclick="detenerMonitoreoTrafico()" disabled><i class="fas fa-stop"></i> Detener Monitoreo</button>
+                    <button class="btn btn-success" id="btnIniciarTrafico" onclick="iniciarMonitoreoTrafico()"><i class="fas fa-play"></i> Iniciar Monitoreo</button>
+                </div>
+            </div>
+            <div class="stats-grid protocol-grid">
+                <div class="corp-card protocol-http"><div class="corp-card-header"><span>HTTP/HTTPS</span><span id="estadoHttp" class="badge badge-ok">NORMAL</span></div><div class="corp-card-value" id="valorHttp">0.00 MB/s</div><div id="detalleHttp" style="font-size:12px;color:var(--text-secondary);margin-top:8px;">Por debajo del umbral</div></div>
+                <div class="corp-card protocol-voip"><div class="corp-card-header"><span>VoIP</span><span id="estadoVoip" class="badge badge-ok">NORMAL</span></div><div class="corp-card-value" id="valorVoip">0.00 MB/s</div><div id="detalleVoip" style="font-size:12px;color:var(--text-secondary);margin-top:8px;">Por debajo del umbral</div></div>
+                <div class="corp-card protocol-streaming"><div class="corp-card-header"><span>Streaming</span><span id="estadoStreaming" class="badge badge-ok">NORMAL</span></div><div class="corp-card-value" id="valorStreaming">0.00 MB/s</div><div id="detalleStreaming" style="font-size:12px;color:var(--text-secondary);margin-top:8px;">Por debajo del umbral</div></div>
+                <div class="corp-card protocol-other"><div class="corp-card-header"><span>Otros</span><span id="estadoOtros" class="badge badge-ok">NORMAL</span></div><div class="corp-card-value" id="valorOtros">0.00 MB/s</div><div id="estadoOtrosDetalle" style="font-size:12px;color:var(--text-secondary);margin-top:8px;">Por debajo del umbral de advertencia</div><div id="detalleOtros" style="font-size:11px;color:var(--text-secondary);margin-top:6px;">DNS: 0.00 MB/s · NTP: 0.00 MB/s · No identificado: 0.00 MB/s</div></div>
+            </div>
+        </section>
+
+        <section id="devicesSection" class="hidden">
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h2>Dispositivos</h2>
+                    <p>Detección de equipos de la red y control de autorización.</p>
+                </div>
+            </div>
+            <div class="corp-card" style="margin-bottom:20px;">
+                <div class="toolbar" style="align-items:flex-end;">
+                    <div>
+                        <h3 style="margin-bottom:6px;">Escaneo de red</h3>
+                        <p style="margin:0;color:var(--text-secondary);font-size:13px;">Python + Nmap detecta los equipos y NetSit conserva la autorización en MySQL.</p>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+                        <div class="form-group" style="margin:0;min-width:220px;">
+                            <label for="subnetScan">Subred</label>
+                            <input id="subnetScan" value="192.168.1.0/24" placeholder="Ej. 192.168.1.0/24">
+                        </div>
+                        <button class="btn btn-primary" id="btnScanDevices" onclick="escanearDispositivos()"><i class="fas fa-search"></i> Escanear red</button>
+                        <button class="btn btn-secondary" onclick="loadDevices()"><i class="fas fa-sync-alt"></i> Actualizar</button>
+                        <button class="btn btn-secondary" onclick="registerDevice()"><i class="fas fa-plus"></i> Registrar IP</button>
+                    </div>
+                </div>
+                <div id="deviceScanMessage" style="display:none;margin-top:14px;"></div>
+            </div>
+            <div class="corp-card">
+                <div class="toolbar"><h3>Dispositivos detectados</h3></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>ID</th><th>Dispositivo</th><th>IP</th><th>MAC</th><th>Estado</th><th>Autorización</th><th>Última conexión</th><th>Acciones</th></tr></thead>
+                        <tbody id="devicesBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="qosSection" class="hidden"><div class="dashboard-header"><div class="dashboard-title"><h2>Calidad de Servicio (QoS)</h2><p>Latencia, jitter, pérdida de paquetes y MOS.</p></div></div><div class="corp-card" style="margin-bottom:24px;"><div class="form-grid"><div class="form-field"><label for="qosIp">IP / Host</label><input id="qosIp" placeholder="8.8.8.8"></div><div class="form-field"><label for="qosPackets">Paquetes</label><input id="qosPackets" type="number" value="10" min="1" max="100"></div><div class="form-field" style="justify-content:end"><label>&nbsp;</label><button class="btn btn-primary" onclick="measureQos()"><i class="fas fa-tachometer-alt"></i> Medir QoS</button></div></div><div id="qosResult" class="status-message">Sin medición.</div></div><div class="corp-card"><div class="toolbar"><h3>Historial reciente</h3><button class="btn btn-primary" onclick="loadQos()"><i class="fas fa-sync-alt"></i> Actualizar</button></div><div class="table-container"><table><thead><tr><th>IP</th><th>Latencia</th><th>Jitter</th><th>Pérdida</th><th>MOS</th><th>Calidad</th><th>Fecha</th></tr></thead><tbody id="qosBody"></tbody></table></div></div></section>
+
+        <section id="usersSection" class="hidden">
+
+            <div class="dashboard-header users-header">
+                <div class="dashboard-title">
+                    <h2>Gestión de Usuarios</h2>
+                    <p>Administra las cuentas, datos y roles registrados en NetSit.</p>
+                </div>
+            </div>
+
+            <div id="usuariosListado">
+
+                <div class="users-create-row">
+                    <button
+                        type="button"
+                        id="btnMostrarFormularioUsuario"
+                        class="btn btn-success"
+                        onclick="mostrarFormularioUsuario()">
+                        <i class="fas fa-user-plus"></i> Crear Usuario
+                    </button>
+                </div>
+
+                <div class="corp-card users-filters-card">
+                    <div class="users-filters-title">
+                        <i class="fas fa-search"></i>
+                        <span>Filtros de búsqueda</span>
+                    </div>
+
+                    <div class="users-filters-grid">
+                        <div class="form-field">
+                            <label for="filtroUsuario"><i class="fas fa-user"></i> Usuario</label>
+                            <input type="text" id="filtroUsuario" placeholder="Buscar por usuario..." oninput="filtrarUsuarios()">
+                        </div>
+
+                        <div class="form-field">
+                            <label for="filtroNombre"><i class="fas fa-id-card"></i> Nombre</label>
+                            <input type="text" id="filtroNombre" placeholder="Buscar por nombre..." oninput="filtrarUsuarios()">
+                        </div>
+
+                        <div class="form-field">
+                            <label for="filtroApellido"><i class="fas fa-id-card"></i> Apellido</label>
+                            <input type="text" id="filtroApellido" placeholder="Buscar por apellido..." oninput="filtrarUsuarios()">
+                        </div>
+
+                        <div class="form-field">
+                            <label for="filtroEmail"><i class="fas fa-envelope"></i> Email</label>
+                            <input type="text" id="filtroEmail" placeholder="Buscar por email..." oninput="filtrarUsuarios()">
+                        </div>
+
+                        <div class="form-field">
+                            <label for="filtroRolUsuarios"><i class="fas fa-user-tag"></i> Rol</label>
+                            <select id="filtroRolUsuarios" onchange="filtrarUsuarios()">
+                                <option value="TODOS" selected>Todos</option>
+                                <option value="ROLE_USER">Usuario</option>
+                                <option value="ROLE_ADMIN">Administrador</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="users-filter-actions">
+                        <button type="button" class="btn btn-primary" onclick="limpiarFiltrosUsuarios()">
+                            <i class="fas fa-eraser"></i> Limpiar filtros
+                        </button>
+                    </div>
+                </div>
+
+                <div id="usuariosRegistrados" class="corp-card users-table-card">
+                    <div class="toolbar">
+                        <div>
+                            <h3><i class="fas fa-users"></i> Usuarios registrados</h3>
+                            <span class="users-table-subtitle">Listado de cuentas disponibles en el sistema</span>
+                        </div>
+
+                        <button type="button" class="btn btn-primary" onclick="loadUsers()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <colgroup>
+                                <col style="width:14%;">
+                                <col style="width:14%;">
+                                <col style="width:14%;">
+                                <col style="width:20%;">
+                                <col style="width:12%;">
+                                <col style="width:16%;">
+                                <col style="width:10%;">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Último acceso</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="users-pagination" id="usersPagination">
+                        <div class="users-pagination-info" id="usersPaginationInfo">Mostrando 0 usuarios</div>
+                        <div class="users-pagination-controls">
+                            <button type="button" class="btn btn-outline-primary" id="usersPrevBtn" onclick="cambiarPaginaUsuarios(-1)" disabled title="Página anterior">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <span class="users-pagination-page" id="usersPaginationPage">Página 1 de 1</span>
+                            <button type="button" class="btn btn-outline-primary" id="usersNextBtn" onclick="cambiarPaginaUsuarios(1)" disabled title="Página siguiente">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="formularioUsuario" class="corp-card users-form-card" style="display:none;">
+                <div class="toolbar">
+                    <div>
+                        <h3><i class="fas fa-user-plus"></i> Crear usuario</h3>
+                        <span class="users-table-subtitle">Completa los datos de la nueva cuenta.</span>
+                    </div>
+                </div>
+
+                <div class="users-form-content">
+                    <div class="form-field">
+                        <label for="newNombre">Nombre</label>
+                        <input type="text" id="newNombre" placeholder="Ingrese el nombre" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="newApellido">Apellido</label>
+                        <input type="text" id="newApellido" placeholder="Ingrese el apellido" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="newEmail">Correo electrónico</label>
+                        <input type="email" id="newEmail" placeholder="Ingrese el correo" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="newRole">Rol</label>
+                        <select id="newRole">
+                            <option value="ROLE_USER">Usuario</option>
+                            <option value="ROLE_ADMIN">Administrador</option>
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="newUsername">Nombre de usuario</label>
+                        <input type="text" id="newUsername" placeholder="Ingrese el nombre de usuario" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="newPassword">Contraseña</label>
+                        <input type="password" id="newPassword" placeholder="Ingrese la contraseña" required>
+                    </div>
+
+                    <div class="users-form-actions">
+                        <button type="button" class="btn btn-primary" onclick="createUser()">
+                            <i class="fas fa-save"></i> Guardar usuario
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="ocultarFormularioUsuario()">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </div>
+
+                    <div id="userMessage" class="status-message" style="display:none;"></div>
+                </div>
+            </div>
+
+        </section>
+
+        <section id="logsSection" class="hidden">
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h2>Logs de Actividad</h2>
+                    <p>Consulta el historial de operaciones realizadas en el sistema.</p>
+                </div>
+            </div>
+
+            <div class="corp-card logs-filters-card">
+                <div class="logs-filters-title">
+                    <i class="fas fa-filter"></i>
+                    <span>Filtros de actividad</span>
+                </div>
+                <div class="logs-filters-grid">
+                    <div class="form-field">
+                        <label for="filtroLogs"><i class="fas fa-bolt"></i> Acción</label>
+                        <select id="filtroLogs" onchange="cargarLogs(0)">
+                            <option value="Todos" selected>Todas</option>
+                            <option value="PING">Ping</option>
+                            <option value="ESCANEO">Escaneo</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label for="filtroUsuarioLogs"><i class="fas fa-user"></i> Usuario</label>
+                        <input type="text" id="filtroUsuarioLogs" placeholder="Buscar por usuario..." oninput="programarCargaLogs()">
+                    </div>
+                    <div class="logs-filter-actions">
+                        <button type="button" class="btn btn-primary" onclick="limpiarFiltrosLogs()">
+                            <i class="fas fa-eraser"></i> Limpiar filtros
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="cargarLogs(0)">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="corp-card logs-table-card">
+                <div class="toolbar">
+                    <div>
+                        <h3><i class="fas fa-history"></i> Historial de actividad</h3>
+                        <span class="logs-table-subtitle">Se muestran 8 registros por página.</span>
+                    </div>
+                    <span id="infoPaginacionLogs" class="logs-page-info">0 registros</span>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Acción</th>
+                                <th>IP</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaLogsBody">
+                            <tr><td colspan="6" style="text-align:center;padding:28px;">Cargando registros...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="paginacionLogs" class="logs-pagination"></div>
+            </div>
+        </section>
+
+        <section id="voipSection" class="hidden">
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <h2>Telefonía VoIP</h2>
+        </div>
+    </div>
+
+    <div class="corp-card" style="margin-bottom:24px;">
+        <div class="corp-card-header"><span>Estado del Servidor Asterisk</span></div>
+        <span id="voipEstadoServidor" class="badge badge-warn"><i class="fas fa-circle"></i> Verificando...</span>
+    </div>
+
+    <div class="stats-grid">
+        <div class="corp-card voip-card-total">
+            <div class="corp-card-header"><span>Extensiones Totales</span></div>
+            <div class="corp-card-value" id="voipExtTotal">0</div>
+        </div>
+        <div class="corp-card voip-card-online">
+            <div class="corp-card-header"><span>Extensiones En Línea</span></div>
+            <div class="corp-card-value" id="voipExtOnline">0</div>
+        </div>
+        <div class="corp-card voip-card-offline">
+            <div class="corp-card-header"><span>Extensiones Fuera de Línea</span></div>
+            <div class="corp-card-value" id="voipExtOffline">0</div>
+        </div>
+        <div class="corp-card voip-card-active">
+            <div class="corp-card-header"><span>Llamadas Activas</span></div>
+            <div class="corp-card-value" id="voipCallsActive">0</div>
+        </div>
+    </div>
+
+    <div class="corp-card" style="margin-bottom:24px;">
+        <div class="toolbar">
+            <h3>Extensiones Registradas</h3>
+            <button class="btn btn-primary" onclick="loadVoipExtensions()"><i class="fas fa-sync-alt"></i> Actualizar</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Extensión</th><th>Nombre</th><th>Estado</th></tr></thead>
+                <tbody id="voipExtensionsBody"><tr><td colspan="3">Sin datos aún.</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="corp-card" style="margin-bottom:24px;">
+        <div class="toolbar">
+            <h3>Llamadas Activas</h3>
+            <button class="btn btn-primary" onclick="loadVoipActiveCalls()"><i class="fas fa-sync-alt"></i> Actualizar</button>
+        </div>
+        <div id="voipActiveCallsList" class="section-note">No hay llamadas activas en este momento.</div>
+    </div>
+    <div class="corp-card">
+        <div class="toolbar">
+            <h3>Historial Reciente de Llamadas (CDR)</h3>
+            <button class="btn btn-primary" onclick="loadVoipCdr()"><i class="fas fa-sync-alt"></i> Actualizar</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Origen</th><th>Destino</th><th>Fecha/Hora</th><th>Duración</th></tr></thead>
+                <tbody id="voipCdrBody"><tr><td colspan="4">Sin datos aún.</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</div>
+
+<div class="modal" id="pingModal"><div class="modal-content"><span class="close-modal" onclick="closePingModal()">&times;</span><h3><i class="fas fa-terminal" style="color:var(--brand-primary)"></i> Diagnóstico Ping ICMP</h3><form id="pingForm" onsubmit="realizarPing(event)"><div class="form-group"><label for="ipAddress">IP o Dominio</label><input id="ipAddress" required placeholder="Ingrese una dirección IP o Dominio"></div><div style="display:flex;gap:10px;"><button type="submit" id="btnPingSubmit" class="btn btn-primary" style="flex:1;"><i class="fas fa-play"></i> Enviar Traza</button><button type="button" id="btnPingCancel" onclick="cancelarPing()" class="btn btn-danger" style="display:none;"><i class="fas fa-stop"></i> Cancelar</button></div></form><div id="pingResult" style="margin-top:20px;display:none;"><label>Resultado:</label><pre id="pingOutput"></pre></div></div></div>
+<div class="modal" id="portScanModal"><div class="modal-content"><span class="close-modal" onclick="closePortScanModal()">&times;</span><h3><i class="fas fa-search" style="color:var(--brand-primary)"></i> Auditoría de Puertos</h3><form id="portScanForm" onsubmit="realizarEscaneoPuertos(event)"><div class="form-group"><label for="ipAddressScan">IP o Dominio</label><input id="ipAddressScan" required placeholder="Ingrese una dirección IP o Dominio"></div><div class="form-group"><label for="portRange">Rango de Puertos</label><input id="portRange" value="1-1000" required></div><div style="display:flex;gap:10px;"><button type="submit" id="btnScanSubmit" class="btn btn-primary" style="flex:1;"><i class="fas fa-search"></i> Iniciar Escaneo</button><button type="button" id="btnScanCancel" onclick="cancelarEscaneo()" class="btn btn-danger" style="display:none;"><i class="fas fa-stop"></i> Cancelar</button></div></form><div id="scanResult" style="margin-top:20px;display:none;"><label>Resultado del Escaneo:</label><pre id="scanOutput"></pre></div></div></div>
+
+<script>
+    const $ = id => document.getElementById(id);
+
+    function esc(v) {
+        return String(v ?? '').replace(/[&<>"']/g, m => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        }[m]));
+    }
+
+    async function api(url, opts = {}) {
+        const r = await fetch(url, opts);
+
+        if (!r.ok) {
+            let t = await r.text();
+            throw new Error(t || ('HTTP ' + r.status));
+        }
+
+        const ct = r.headers.get('content-type') || '';
+        return ct.includes('application/json') ? r.json() : r.text();
+    }
+
+    function mostrarSeccion(id, btn) {
+        document.querySelectorAll('main section').forEach(section => {
+            section.classList.add('hidden');
+        });
+
+        $(id).classList.remove('hidden');
+
+        document.querySelectorAll('.sidebar-dock .nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+
+        $(btn)?.classList.add('active');
+
+        if (id === 'dashboardSection') {
+            loadDashboard();
+        }
+
+        if (id === 'trafficSection') {
+            // Entrar en la sección NO inicia la captura.
+            // La captura solo comienza al pulsar el botón Iniciar.
+            iniciarPollingTrafico();
+            cargarEstadoTrafico(false);
+        } else {
+            detenerPollingTrafico();
+        }
+
+        if (id === 'devicesSection') {
+            loadDevices();
+        }
+
+        if (id === 'qosSection') {
+            loadQos();
+        }
+
+        if (id === 'usersSection') {
+            mostrarTablaUsuarios();
+            loadUsers();
+        }
+
+        if (id === 'logsSection') {
+            cargarLogs(0);
+        }
+
+        if (id === 'voipSection') {
+            loadVoipDashboard();
+        }
+    }
+
+    async function loadDashboard() {
+        try {
+            const u = await api('/api/usuarios');
+            const totalUsuarios = Array.isArray(u) ? u.length : (u.totalElements ?? u.total ?? 0);
+            $('userCount').textContent = totalUsuarios;
+        } catch (e) {
+            // Si falla, se deja el valor previo del contador visible.
+        }
+
+        loadDevices();
+    }
+
+    let usuariosCargados = [];
+    let usuariosFiltrados = [];
+    let paginaUsuarios = 0;
+    const USUARIOS_POR_PAGINA = 8;
+
+    async function loadUsers() {
+        try {
+            const respuestaUsuarios = await api('/api/usuarios');
+            usuariosCargados = Array.isArray(respuestaUsuarios)
+                ? respuestaUsuarios
+                : (respuestaUsuarios.content || respuestaUsuarios.usuarios || []);
+            const totalUsuarios = Array.isArray(respuestaUsuarios)
+                ? respuestaUsuarios.length
+                : (respuestaUsuarios.totalElements ?? respuestaUsuarios.total ?? usuariosCargados.length);
+            $('userCount').textContent = totalUsuarios;
+            filtrarUsuarios();
+        } catch (e) {
+            $('usersBody').innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align:center;color:var(--danger);">
+                        Error al cargar usuarios: ${esc(e.message)}
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    function obtenerRolUsuario(usuario) {
+        if (usuario.roles && usuario.roles.length > 0) {
+            const rol = usuario.roles[0];
+
+            if (typeof rol === 'object') {
+                return rol.nombre || 'ROLE_USER';
+            }
+
+            return rol;
+        }
+
+        if (usuario.rol) {
+            if (typeof usuario.rol === 'object') {
+                return usuario.rol.nombre || 'ROLE_USER';
+            }
+
+            return usuario.rol;
+        }
+
+        return 'ROLE_USER';
+    }
+
+    function formatearRolUsuario(rol) {
+        return rol === 'ROLE_ADMIN' ? 'Administrador' : 'Usuario';
+    }
+
+    function formatearUltimoAcceso(usuario) {
+        const fecha = usuario.ultimoAcceso || usuario.ultimoLogin || usuario.lastLogin;
+
+        if (!fecha) {
+            return '-';
+        }
+
+        const fechaObj = new Date(fecha);
+
+        if (Number.isNaN(fechaObj.getTime())) {
+            return esc(fecha);
+        }
+
+        return fechaObj.toLocaleString();
+    }
+
+    function filtrarUsuarios() {
+        const usuario = $('filtroUsuario')?.value.trim().toLowerCase() || '';
+        const nombre = $('filtroNombre')?.value.trim().toLowerCase() || '';
+        const apellido = $('filtroApellido')?.value.trim().toLowerCase() || '';
+        const email = $('filtroEmail')?.value.trim().toLowerCase() || '';
+        const rolFiltro = $('filtroRolUsuarios')?.value || 'TODOS';
+
+        usuariosFiltrados = usuariosCargados.filter(item => {
+            const rol = obtenerRolUsuario(item).toUpperCase();
+
+            return (
+                (!usuario || String(item.username || '').toLowerCase().includes(usuario)) &&
+                (!nombre || String(item.nombre || '').toLowerCase().includes(nombre)) &&
+                (!apellido || String(item.apellido || '').toLowerCase().includes(apellido)) &&
+                (!email || String(item.email || '').toLowerCase().includes(email)) &&
+                (rolFiltro === 'TODOS' || rol === rolFiltro)
+            );
+        });
+
+        paginaUsuarios = 0;
+        renderUsuarios();
+    }
+
+    function renderUsuarios() {
+        const body = $('usersBody');
+        const total = usuariosFiltrados.length;
+        const totalPaginas = Math.max(1, Math.ceil(total / USUARIOS_POR_PAGINA));
+
+        if (paginaUsuarios >= totalPaginas) {
+            paginaUsuarios = totalPaginas - 1;
+        }
+        if (paginaUsuarios < 0) {
+            paginaUsuarios = 0;
+        }
+
+        if (!total) {
+            body.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align:center;padding:28px;">
+                        No se encontraron usuarios
+                    </td>
+                </tr>
+            `;
+            actualizarPaginacionUsuarios(0, 0, 1);
+            return;
+        }
+
+        const inicio = paginaUsuarios * USUARIOS_POR_PAGINA;
+        const fin = Math.min(inicio + USUARIOS_POR_PAGINA, total);
+        const usuariosPagina = usuariosFiltrados.slice(inicio, fin);
+
+        body.innerHTML = usuariosPagina.map(usuario => {
+            const rol = obtenerRolUsuario(usuario);
+            const rolTexto = formatearRolUsuario(rol);
+            const rolClase = rol === 'ROLE_ADMIN' ? 'badge-warn' : 'badge-ok';
+
+            return `
+                <tr>
+                    <td>${esc(usuario.username || '-')}</td>
+                    <td>${esc(usuario.nombre || '-')}</td>
+                    <td>${esc(usuario.apellido || '-')}</td>
+                    <td>${esc(usuario.email || '-')}</td>
+                    <td>
+                        <span class="badge ${rolClase}">${rolTexto}</span>
+                    </td>
+                    <td>${formatearUltimoAcceso(usuario)}</td>
+                    <td>
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            onclick="deleteUser(${usuario.id})"
+                            title="Eliminar usuario">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        actualizarPaginacionUsuarios(inicio + 1, fin, totalPaginas);
+    }
+
+    function actualizarPaginacionUsuarios(inicio, fin, totalPaginas) {
+        const info = $('usersPaginationInfo');
+        const pagina = $('usersPaginationPage');
+        const anterior = $('usersPrevBtn');
+        const siguiente = $('usersNextBtn');
+        const total = usuariosFiltrados.length;
+
+        if (info) {
+            info.textContent = total === 0
+                ? 'Mostrando 0 usuarios'
+                : `Mostrando ${inicio}-${fin} de ${total} usuarios`;
+        }
+
+        if (pagina) {
+            pagina.textContent = `Página ${total === 0 ? 1 : paginaUsuarios + 1} de ${totalPaginas}`;
+        }
+
+        if (anterior) {
+            anterior.disabled = paginaUsuarios <= 0 || total === 0;
+        }
+
+        if (siguiente) {
+            siguiente.disabled = paginaUsuarios >= totalPaginas - 1 || total === 0;
+        }
+    }
+
+    function cambiarPaginaUsuarios(direccion) {
+        const totalPaginas = Math.max(1, Math.ceil(usuariosFiltrados.length / USUARIOS_POR_PAGINA));
+        const nuevaPagina = paginaUsuarios + direccion;
+
+        if (nuevaPagina < 0 || nuevaPagina >= totalPaginas) {
+            return;
+        }
+
+        paginaUsuarios = nuevaPagina;
+        renderUsuarios();
+    }
+
+    function limpiarFiltrosUsuarios() {
+        $('filtroUsuario').value = '';
+        $('filtroNombre').value = '';
+        $('filtroApellido').value = '';
+        $('filtroEmail').value = '';
+        $('filtroRolUsuarios').value = 'TODOS';
+
+        filtrarUsuarios();
+    }
+
+    function mostrarFormularioUsuario() {
+        $('usuariosListado').style.display = 'none';
+        $('formularioUsuario').style.display = 'block';
+
+        $('userMessage').textContent = '';
+        $('userMessage').style.display = 'none';
+    }
+
+    function ocultarFormularioUsuario() {
+        $('formularioUsuario').style.display = 'none';
+        $('usuariosListado').style.display = 'block';
+
+        $('userMessage').textContent = '';
+        $('userMessage').style.display = 'none';
+
+        loadUsers();
+    }
+
+    function mostrarTablaUsuarios() {
+        $('formularioUsuario').style.display = 'none';
+        $('usuariosListado').style.display = 'block';
+
+        $('userMessage').textContent = '';
+        $('userMessage').style.display = 'none';
+    }
+
+    async function createUser() {
+        const body = {
+            username: $('newUsername').value.trim(),
+            password: $('newPassword').value,
+            nombre: $('newNombre').value.trim(),
+            apellido: $('newApellido').value.trim(),
+            email: $('newEmail').value.trim(),
+            roles: [$('newRole').value]
+        };
+
+        if (
+            !body.username ||
+            !body.password ||
+            !body.nombre ||
+            !body.apellido ||
+            !body.email
+        ) {
+            alert('Todos los campos son obligatorios.');
+            return;
+        }
+
+        try {
+            await api('/api/usuarios/crear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+
+            const mensaje = $('userMessage');
+
+            mensaje.textContent = '✓ Usuario creado correctamente.';
+            mensaje.style.display = 'block';
+
+            [
+                'newUsername',
+                'newPassword',
+                'newNombre',
+                'newApellido',
+                'newEmail'
+            ].forEach(id => $(id).value = '');
+
+            $('newRole').value = 'ROLE_USER';
+
+            await loadUsers();
+
+            setTimeout(() => {
+                mostrarTablaUsuarios();
+            }, 1200);
+        } catch (e) {
+            const mensaje = $('userMessage');
+            mensaje.textContent = 'No se pudo crear: ' + e.message;
+            mensaje.style.display = 'block';
+        }
+    }
+
+    async function deleteUser(id) {
+        if (!confirm('¿Eliminar este usuario?')) {
+            return;
+        }
+
+        try {
+            await api('/api/usuarios/' + id, { method: 'DELETE' });
+            await loadUsers();
+        } catch (e) {
+            alert('Error: ' + e.message);
+        }
+    }
+
+    let dispositivosActuales = [];
+
+    function claseEstadoDispositivo(estado) {
+        return estado === 'ACTIVO' ? 'badge-ok' : 'badge-danger';
+    }
+
+    function claseAutorizacionDispositivo(estado) {
+        if (estado === 'AUTORIZADO') return 'badge-ok';
+        if (estado === 'NO_AUTORIZADO') return 'badge-danger';
+        return 'badge-warn';
+    }
+
+    function mostrarMensajeDispositivo(texto, tipo = 'info') {
+        const box = $('deviceScanMessage');
+        if (!box) return;
+        box.style.display = 'block';
+        box.className = 'device-message ' + tipo;
+        box.textContent = texto;
+    }
+
+    async function loadDevices() {
+        try {
+            const d = await api('/api/dispositivos');
+            dispositivosActuales = Array.isArray(d) ? d : [];
+            $('totalDevices').textContent = dispositivosActuales.length;
+
+            let a = 0, n = 0, u = 0;
+            dispositivosActuales.forEach(x => {
+                const s = x.estadoAutorizacion || 'DESCONOCIDO';
+                if (s === 'AUTORIZADO') a++;
+                else if (s === 'NO_AUTORIZADO') n++;
+                else u++;
+            });
+            $('autorizadosCount').textContent = a;
+            $('noAutorizadosCount').textContent = n;
+            $('desconocidosCount').textContent = u;
+
+            $('devicesBody').innerHTML = dispositivosActuales.map(x => {
+                const autorizacion = x.estadoAutorizacion || 'DESCONOCIDO';
+                const estado = x.estado || 'INACTIVO';
+                return `
+                    <tr>
+                        <td>${esc(x.id)}</td>
+                        <td><span class="device-name">${esc(x.nombre || ('Dispositivo ' + x.ip))}</span></td>
+                        <td><strong>${esc(x.ip)}</strong></td>
+                        <td><span class="device-sub">${esc(x.mac || '-')}</span></td>
+                        <td><span class="badge ${claseEstadoDispositivo(estado)}">${esc(estado)}</span></td>
+                        <td><span class="badge ${claseAutorizacionDispositivo(autorizacion)}">${esc(autorizacion)}</span></td>
+                        <td>${x.ultimaConexion ? new Date(x.ultimaConexion).toLocaleString() : '-'}</td>
+                        <td>
+                            <div class="device-actions">
+                                <button class="btn btn-primary" onclick="autorizarDispositivo(${x.id})" title="Autorizar"><i class="fas fa-check"></i></button>
+                                <button class="btn btn-danger" onclick="bloquearDispositivo(${x.id})" title="No autorizar"><i class="fas fa-ban"></i></button>
+                                <button class="btn btn-secondary" onclick="marcarDesconocido(${x.id})" title="Marcar como desconocido"><i class="fas fa-question"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
+            }).join('') || '<tr><td colspan="8" style="text-align:center;padding:28px;">No hay dispositivos registrados.</td></tr>';
+        } catch (e) {
+            $('devicesBody').innerHTML = `<tr><td colspan="8" style="color:var(--danger);text-align:center;">Error: ${esc(e.message)}</td></tr>`;
+        }
+    }
+
+    async function escanearDispositivos() {
+        const subnet = $('subnetScan').value.trim();
+        const btn = $('btnScanDevices');
+        if (!subnet) {
+            mostrarMensajeDispositivo('Escribe la subred que deseas escanear.', 'error');
+            return;
+        }
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Escaneando...';
+        mostrarMensajeDispositivo('Escaneando ' + subnet + '. Esto puede tardar unos segundos...', 'info');
+        try {
+            const resultado = await api('/api/dispositivos/escanear', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subnet })
+            });
+            await loadDevices();
+            const total = Array.isArray(resultado) ? resultado.length : 0;
+            mostrarMensajeDispositivo('Escaneo completado. Dispositivos detectados: ' + total + '.', 'ok');
+        } catch (e) {
+            mostrarMensajeDispositivo('No se pudo completar el escaneo: ' + e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-search"></i> Escanear red';
+        }
+    }
+
+    async function cambiarAutorizacion(id, estado) {
+    try {
+        await api('/api/dispositivos/' + id + '/autorizacion', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                estado: estado
+            })
+        });
+
+        await loadDevices();
+
+    } catch (e) {
+        alert('Error al cambiar autorización: ' + e.message);
+    }
+}
+
+    function autorizarDispositivo(id) {
+        return cambiarAutorizacion(id, 'AUTORIZADO');
+    }
+
+    function bloquearDispositivo(id) {
+        return cambiarAutorizacion(id, 'NO_AUTORIZADO');
+    }
+
+    function marcarDesconocido(id) {
+        return cambiarAutorizacion(id, 'DESCONOCIDO');
+    }
+
+    async function registerDevice() {
+        const ip = prompt('IP del dispositivo:');
+        if (!ip) return;
+        try {
+            await api('/api/dispositivos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip: ip.trim() })
+            });
+            await loadDevices();
+        } catch (e) {
+            alert('Error: ' + e.message);
+        }
+    }
+
+    async function loadVoipDashboard() {
+    try {
+        const s = await api('/api/voip/status');
+        $('voipEstadoServidor').className = 'badge ' + (s.conectado ? 'badge-ok' : 'badge-warn');
+        $('voipEstadoServidor').innerHTML = '<i class="fas fa-circle"></i> ' + (s.conectado ? 'Conectado' : 'Error de Conexión');
+        $('voipExtTotal').textContent = s.extensionesTotales ?? 0;
+        $('voipExtOnline').textContent = s.extensionesEnLinea ?? 0;
+        $('voipExtOffline').textContent = s.extensionesFueraDeLinea ?? 0;
+        $('voipCallsActive').textContent = s.llamadasActivas ?? 0;
+    } catch (e) {
+        $('voipEstadoServidor').className = 'badge badge-warn';
+        $('voipEstadoServidor').innerHTML = '<i class="fas fa-circle"></i> Error de Conexión';
+    }
+    loadVoipExtensions();
+    loadVoipActiveCalls();
+    loadVoipCdr();
+}
+
+async function loadVoipExtensions() {
+    try {
+        const ext = await api('/api/voip/extensions');
+        $('voipExtensionsBody').innerHTML = ext.length
+            ? ext.map(e => `<tr><td>${e.extension}</td><td>${e.nombre || '-'}</td><td>${e.estado}</td></tr>`).join('')
+            : '<tr><td colspan="3">No hay extensiones registradas.</td></tr>';
+    } catch (e) {
+        $('voipExtensionsBody').innerHTML = '<tr><td colspan="3" style="color:var(--danger)">Error al cargar extensiones</td></tr>';
+    }
+}
+
+async function loadVoipActiveCalls() {
+    try {
+        const calls = await api('/api/voip/calls/active');
+        $('voipActiveCallsList').innerHTML = calls.length
+            ? calls.map(c => `<div>${c.numeroOrigen} → ${c.canal} · desde ${new Date(c.inicio).toLocaleTimeString()}</div>`).join('')
+            : 'No hay llamadas activas en este momento.';
+    } catch (e) {
+        $('voipActiveCallsList').innerHTML = '<span style="color:var(--danger)">Error al cargar llamadas activas</span>';
+    }
+}
+
+async function loadVoipCdr() {
+    try {
+        const cdr = await api('/api/voip/cdr');
+        $('voipCdrBody').innerHTML = cdr.length
+            ? cdr.map(r => `<tr><td>${r.origen}</td><td>${r.destino}</td><td>${new Date(r.fechaHora).toLocaleString()}</td><td>${r.duracionSegundos}s</td></tr>`).join('')
+            : '<tr><td colspan="4">Sin historial aún.</td></tr>';
+    } catch (e) {
+        $('voipCdrBody').innerHTML = '<tr><td colspan="4" style="color:var(--danger)">Error al cargar historial</td></tr>';
+    }
+}
+
+    // --- Tráfico de red -----------------------------------------------------
+
+    let trafficChart = null;
+    let trafficTimer = null;
+    let trafficCapturing = false;
+    let umbralAdvertencia = 5;
+    let umbralCritico = 10;
+    let configuracionTraficoCargada = false;
+
+    function inicializarGraficoTrafico() {
+        if (trafficChart) {
+            return;
+        }
+
+        const ctx = $('trafficChart').getContext('2d');
+
+        trafficChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'HTTP/HTTPS',
+                        data: [],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37,99,235,.08)',
+                        tension: .3,
+                        pointRadius: 2
+                    },
+                    {
+                        label: 'VoIP',
+                        data: [],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16,185,129,.08)',
+                        tension: .3,
+                        pointRadius: 2
+                    },
+                    {
+                        label: 'Streaming',
+                        data: [],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239,68,68,.08)',
+                        tension: .3,
+                        pointRadius: 2
+                    },
+                    {
+                        label: 'Otros',
+                        data: [],
+                        borderColor: '#94a3b8',
+                        backgroundColor: 'rgba(148,163,184,.08)',
+                        tension: .3,
+                        pointRadius: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'MB/s' }
+                    }
+                }
+            }
+        });
+    }
+
+    function aplicarEstadoTarjeta(valor, estadoId, detalleId) {
+        const badge = $(estadoId);
+        const detalle = $(detalleId);
+        if (!badge) return;
+
+        if (valor >= umbralCritico) {
+            badge.className = 'badge badge-danger';
+            badge.textContent = 'CRÍTICO';
+            if (detalle) detalle.textContent = 'Supera el umbral crítico de ' + umbralCritico.toFixed(2) + ' MB/s';
+        } else if (valor >= umbralAdvertencia) {
+            badge.className = 'badge badge-warn';
+            badge.textContent = 'ADVERTENCIA';
+            if (detalle) detalle.textContent = 'Supera el umbral de advertencia de ' + umbralAdvertencia.toFixed(2) + ' MB/s';
+        } else {
+            badge.className = 'badge badge-ok';
+            badge.textContent = 'NORMAL';
+            if (detalle) detalle.textContent = 'Por debajo del umbral de advertencia';
+        }
+    }
+
+    function renderTraffic(d) {
+        const p = d.protocolo || {};
+        const http = Number(p.httpMbps || 0);
+        const voip = Number(p.voipMbps || 0);
+        const stream = Number(p.streamingMbps || 0);
+        const other = Number(p.otherMbps || 0);
+
+        $('valorHttp').textContent = http.toFixed(2) + ' MB/s';
+        $('valorVoip').textContent = voip.toFixed(2) + ' MB/s';
+        $('valorStreaming').textContent = stream.toFixed(2) + ' MB/s';
+        $('valorOtros').textContent = other.toFixed(2) + ' MB/s';
+
+        aplicarEstadoTarjeta(http, 'estadoHttp', 'detalleHttp');
+        aplicarEstadoTarjeta(voip, 'estadoVoip', 'detalleVoip');
+        aplicarEstadoTarjeta(stream, 'estadoStreaming', 'detalleStreaming');
+
+        const otrosDns = Number(p.otherDnsMbps || 0);
+        const otrosNtp = Number(p.otherNtpMbps || 0);
+        const otrosNoIdentificado = Number(p.otherUnclassifiedMbps || 0);
+        $('detalleOtros').textContent =
+            'DNS: ' + otrosDns.toFixed(2) + ' MB/s · NTP: ' + otrosNtp.toFixed(2) +
+            ' MB/s · No identificado: ' + otrosNoIdentificado.toFixed(2) + ' MB/s';
+        aplicarEstadoTarjeta(other, 'estadoOtros', 'estadoOtrosDetalle');
+        $('detalleOtros').textContent =
+            'DNS: ' + otrosDns.toFixed(2) + ' MB/s · NTP: ' + otrosNtp.toFixed(2) +
+            ' MB/s · No identificado: ' + otrosNoIdentificado.toFixed(2) + ' MB/s';
+
+        const total = Number(d.mbps || 0);
+        $('valorTotalTrafico').textContent = total.toFixed(2) + ' MB/s';
+
+        const capturando = Boolean(d.activo ?? d.capturando);
+        const lastUpdateBox = $('trafficLastUpdateBox');
+        if (capturando) {
+            lastUpdateBox.style.display = 'block';
+            $('trafficLastUpdate').textContent = new Date().toLocaleTimeString();
+        } else {
+            lastUpdateBox.style.display = 'none';
+            $('trafficLastUpdate').textContent = '--:--:--';
+        }
+        trafficCapturing = capturando;
+        const statusBadge = $('trafficStatusBadge');
+        const startButton = $('btnIniciarTrafico');
+        const stopButton = $('btnDetenerTrafico');
+
+        if (capturando) {
+            statusBadge.className = 'badge badge-ok';
+            statusBadge.innerHTML = '<i class="fas fa-circle"></i> Capturando en tiempo real';
+            startButton.disabled = true;
+            stopButton.disabled = false;
+        } else {
+            statusBadge.className = 'badge badge-warn';
+            statusBadge.innerHTML = '<i class="fas fa-circle"></i> Detenido';
+            startButton.disabled = false;
+            stopButton.disabled = true;
+        }
+
+        const alertBanner = $('trafficAlertBanner');
+
+        if (total >= umbralCritico) {
+            alertBanner.style.display = 'flex';
+            alertBanner.className = 'alert-banner critico';
+            alertBanner.innerHTML = '<i class="fas fa-exclamation-circle"></i> Tráfico en nivel CRÍTICO: ' + total.toFixed(2) + ' MB/s';
+        } else if (total >= umbralAdvertencia) {
+            alertBanner.style.display = 'flex';
+            alertBanner.className = 'alert-banner advertencia';
+            alertBanner.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Tráfico en nivel de ADVERTENCIA: ' + total.toFixed(2) + ' MB/s';
+        } else {
+            alertBanner.style.display = 'none';
+        }
+
+        if (trafficChart) {
+            const labels = trafficChart.data.labels;
+            labels.push(new Date().toLocaleTimeString());
+            if (labels.length > 30) {
+                labels.shift();
+            }
+
+            [http, voip, stream, other].forEach((v, i) => {
+                trafficChart.data.datasets[i].data.push(v);
+                if (trafficChart.data.datasets[i].data.length > 30) {
+                    trafficChart.data.datasets[i].data.shift();
+                }
+            });
+
+            trafficChart.update();
+        }
+    }
+
+    async function cargarEstadoTrafico(iniciarSiEstaDetenido = false) {
+        try {
+            const estado = await api('/api/network/status');
+            const capturando = Boolean(estado.capturando);
+            trafficCapturing = capturando;
+
+            if (capturando) {
+                $('btnIniciarTrafico').disabled = true;
+                $('btnDetenerTrafico').disabled = false;
+                await loadTraffic();
+                return;
+            }
+
+            if (iniciarSiEstaDetenido) {
+                await iniciarMonitoreoTrafico();
+            } else {
+                $('btnIniciarTrafico').disabled = false;
+                $('btnDetenerTrafico').disabled = true;
+                await loadTraffic();
+            }
+        } catch (e) {
+            $('trafficErrorBanner').style.display = 'flex';
+            $('trafficErrorBanner').innerHTML =
+                '<i class="fas fa-triangle-exclamation"></i> No se pudo consultar el estado de la captura: '
+                + esc(e.message);
+        }
+    }
+
+    async function loadTraffic() {
+        try {
+            const d = await api('/api/network/data');
+            $('trafficErrorBanner').style.display = 'none';
+            renderTraffic(d);
+        } catch (e) {
+            $('trafficErrorBanner').style.display = 'flex';
+            $('trafficErrorBanner').innerHTML = '<i class="fas fa-triangle-exclamation"></i> No se pudo consultar el tráfico: ' + esc(e.message);
+        }
+    }
+
+    async function cargarConfiguracionTrafico() {
+        try {
+            const config = await api('/api/network/configuracion');
+            umbralAdvertencia = Number(config.umbralAdvertencia);
+            umbralCritico = Number(config.umbralCritico);
+            configuracionTraficoCargada = true;
+
+            $('umbralAdvertencia').value = umbralAdvertencia;
+            $('umbralCritico').value = umbralCritico;
+        } catch (e) {
+            console.error('No se pudo cargar la configuración de tráfico:', e);
+        }
+    }
+
+    async function iniciarPollingTrafico() {
+        inicializarGraficoTrafico();
+        clearInterval(trafficTimer);
+        await cargarConfiguracionTrafico();
+        await loadTraffic();
+        trafficTimer = setInterval(loadTraffic, 1000);
+    }
+
+    function detenerPollingTrafico() {
+        clearInterval(trafficTimer);
+        trafficTimer = null;
+    }
+
+    async function iniciarMonitoreoTrafico() {
+        try {
+            const r = await fetch('/api/network/start', { method: 'POST' });
+            if (!r.ok) {
+                throw new Error(await r.text());
+            }
+
+            $('trafficErrorBanner').style.display = 'none';
+            trafficCapturing = true;
+            $('btnIniciarTrafico').disabled = true;
+            $('btnDetenerTrafico').disabled = false;
+            await loadTraffic();
+        } catch (e) {
+            $('trafficErrorBanner').style.display = 'flex';
+            $('trafficErrorBanner').innerHTML = '<i class="fas fa-triangle-exclamation"></i> ' + esc(e.message);
+        }
+    }
+
+    async function detenerMonitoreoTrafico() {
+        try {
+            await api('/api/network/stop', { method: 'POST' });
+            trafficCapturing = false;
+            $('btnIniciarTrafico').disabled = false;
+            $('btnDetenerTrafico').disabled = true;
+            await loadTraffic();
+        } catch (e) {
+            alert('Error al detener: ' + e.message);
+        }
+    }
+
+    async function reiniciarMonitoreoTrafico() {
+        try {
+            await api('/api/network/reset', { method: 'POST' });
+
+            if (trafficChart) {
+                trafficChart.data.labels = [];
+                trafficChart.data.datasets.forEach(x => x.data = []);
+                trafficChart.update();
+            }
+
+            loadTraffic();
+        } catch (e) {
+            alert('Error al reiniciar: ' + e.message);
+        }
+    }
+
+    function alternarConfiguracionTrafico() {
+        const panel = $('panelConfiguracionTrafico');
+        const boton = $('btnConfigUmbrales');
+        const abierto = panel.style.display !== 'none';
+
+        panel.style.display = abierto ? 'none' : 'block';
+        boton.innerHTML = abierto
+            ? '<i class="fas fa-sliders-h"></i> Definir umbrales'
+            : '<i class="fas fa-chevron-up"></i> Ocultar umbrales';
+
+        if (!abierto && !configuracionTraficoCargada) {
+            cargarConfiguracionTrafico();
+        }
+    }
+
+    async function guardarConfiguracionTrafico() {
+        const advertencia = Number($('umbralAdvertencia').value);
+        const critico = Number($('umbralCritico').value);
+
+        if (!Number.isFinite(advertencia) || !Number.isFinite(critico) || advertencia < 0 || critico < 0) {
+            alert('Los umbrales deben ser números mayores o iguales a 0.');
+            return;
+        }
+
+        if (critico < advertencia) {
+            alert('El umbral crítico debe ser mayor o igual al de advertencia.');
+            return;
+        }
+
+        try {
+            const config = await api('/api/network/configuracion', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    umbralAdvertencia: advertencia,
+                    umbralCritico: critico
+                })
+            });
+
+            umbralAdvertencia = Number(config.umbralAdvertencia);
+            umbralCritico = Number(config.umbralCritico);
+            configuracionTraficoCargada = true;
+
+            $('umbralAdvertencia').value = umbralAdvertencia;
+            $('umbralCritico').value = umbralCritico;
+
+            const confirmacion = $('configGuardada');
+            confirmacion.style.display = 'block';
+            confirmacion.innerHTML = '<i class="fas fa-check-circle"></i> Configuración guardada en la base de datos: <strong>Advertencia: ' +
+                umbralAdvertencia.toFixed(2) + ' MB/s</strong> · <strong>Crítico: ' +
+                umbralCritico.toFixed(2) + ' MB/s</strong>';
+
+            await loadTraffic();
+        } catch (e) {
+            const confirmacion = $('configGuardada');
+            confirmacion.style.display = 'block';
+            confirmacion.innerHTML = '<i class="fas fa-triangle-exclamation"></i> ' + esc(e.message);
+        }
+    }
+
+    // --- QoS -----------------------------------------------------------------
+
+    async function measureQos() {
+        const ip = $('qosIp').value.trim();
+        const packets = Number($('qosPackets').value) || 10;
+
+        if (!ip) {
+            return alert('Ingrese una IP o dominio.');
+        }
+
+        $('qosResult').textContent = 'Midiendo...';
+
+        try {
+            const d = await api('/api/network/qos/measure', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip, packets })
+            });
+
+            $('qosResult').innerHTML = `Latencia: <b>${Number(d.latencyMs || 0).toFixed(2)} ms</b> · Jitter: <b>${Number(d.jitterMs || 0).toFixed(2)} ms</b> · Pérdida: <b>${Number(d.packetLossPercent || 0).toFixed(2)}%</b> · MOS: <b>${Number(d.mosScore || 0).toFixed(2)}</b> · <b>${esc(d.qualityStatus || '-')}</b>`;
+            loadQos();
+        } catch (e) {
+            $('qosResult').textContent = 'Error: ' + e.message;
+        }
+    }
+
+    async function loadQos() {
+        try {
+            const h = await api('/api/network/qos/history?hours=24');
+
+            $('qosBody').innerHTML = (h || []).slice(0, 50).map(x => `
+                <tr>
+                    <td>${esc(x.targetIp || '-')}</td>
+                    <td>${Number(x.latencyMs || 0).toFixed(2)} ms</td>
+                    <td>${Number(x.jitterMs || 0).toFixed(2)} ms</td>
+                    <td>${Number(x.packetLossPercent || 0).toFixed(2)}%</td>
+                    <td>${Number(x.mosScore || 0).toFixed(2)}</td>
+                    <td>${esc(x.qualityStatus || '-')}</td>
+                    <td>${x.timestamp ? new Date(x.timestamp).toLocaleString() : '-'}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="7" style="text-align:center">Sin métricas.</td></tr>';
+        } catch (e) {
+            $('qosBody').innerHTML = `<tr><td colspan="7">Error: ${esc(e.message)}</td></tr>`;
+        }
+    }
+
+    // --- Logs ------------------------------------------------------------------
+
+    let logsBusquedaTimer = null;
+
+    function programarCargaLogs() {
+        clearTimeout(logsBusquedaTimer);
+        logsBusquedaTimer = setTimeout(() => cargarLogs(0), 250);
+    }
+
+    function limpiarFiltrosLogs() {
+        if ($('filtroLogs')) $('filtroLogs').value = 'Todos';
+        if ($('filtroUsuarioLogs')) $('filtroUsuarioLogs').value = '';
+        cargarLogs(0);
+    }
+
+    async function cargarLogs(page = 0) {
+        const body = $('tablaLogsBody');
+        const paginacion = $('paginacionLogs');
+        const info = $('infoPaginacionLogs');
+
+        if (!body) return;
+
+        body.innerHTML = `
+            <tr><td colspan="6" style="text-align:center;padding:28px;">
+                <i class="fas fa-spinner fa-spin"></i> Cargando registros...
+            </td></tr>`;
+
+        try {
+            const filtro = $('filtroLogs')?.value || 'Todos';
+            const usuario = $('filtroUsuarioLogs')?.value.trim() || '';
+
+            const params = new URLSearchParams({
+                page: String(page),
+                size: '8',
+                filtro: filtro,
+                usuario: usuario
+            });
+
+            const d = await api('/api/diagnostico/logs?' + params.toString());
+            const registros = Array.isArray(d) ? d : (d.content || []);
+            const total = Array.isArray(d) ? d.length : Number(d.totalElements || registros.length);
+            const totalPages = Array.isArray(d) ? 1 : Number(d.totalPages || 0);
+            const paginaActual = Array.isArray(d) ? 0 : Number(d.number || 0);
+
+            if (!registros.length) {
+                body.innerHTML = `
+                    <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-secondary);">
+                        <i class="fas fa-inbox" style="font-size:28px;display:block;margin-bottom:10px;"></i>
+                        No hay registros de actividad.
+                    </td></tr>`;
+            } else {
+                body.innerHTML = registros.map(x => {
+                    const fecha = x.fechaHora ? new Date(x.fechaHora) : null;
+                    const fechaValida = fecha && !Number.isNaN(fecha.getTime());
+                    const fechaTexto = fechaValida ? fecha.toLocaleDateString() : '-';
+                    const horaTexto = fechaValida ? fecha.toLocaleTimeString() : '-';
+                    const accion = String(x.accion || '').toUpperCase();
+                    const clase = accion === 'PING' ? 'badge-ok' : (accion.includes('ESCAN') ? 'badge-warn' : 'badge-secondary');
+
+                    return `
+                        <tr>
+                            <td>${esc(x.usuario || '-')}</td>
+                            <td><span class="badge ${clase}">${esc(x.accion || '-')}</span></td>
+                            <td><strong>${esc(x.ip || '-')}</strong></td>
+                            <td>${fechaTexto}</td>
+                            <td>${horaTexto}</td>
+                            <td>${esc(x.descripcion || '-')}</td>
+                        </tr>`;
+                }).join('');
+            }
+
+            if (info) {
+                if (total === 0) {
+                    info.textContent = '0 registros';
+                } else {
+                    const inicio = paginaActual * 8 + 1;
+                    const fin = Math.min(inicio + registros.length - 1, total);
+                    info.textContent = `Mostrando ${inicio}-${fin} de ${total}`;
+                }
+            }
+
+            if (paginacion) {
+                paginacion.innerHTML = '';
+
+                if (totalPages > 1) {
+                    const anterior = document.createElement('button');
+                    anterior.className = 'btn btn-secondary';
+                    anterior.disabled = paginaActual <= 0;
+                    anterior.innerHTML = '<i class="fas fa-chevron-left"></i> Anterior';
+                    anterior.onclick = () => cargarLogs(paginaActual - 1);
+                    paginacion.appendChild(anterior);
+
+                    for (let i = 0; i < totalPages; i++) {
+                        const boton = document.createElement('button');
+                        boton.className = i === paginaActual ? 'btn btn-primary' : 'btn btn-secondary';
+                        boton.textContent = String(i + 1);
+                        boton.onclick = () => cargarLogs(i);
+                        paginacion.appendChild(boton);
+                    }
+
+                    const siguiente = document.createElement('button');
+                    siguiente.className = 'btn btn-secondary';
+                    siguiente.disabled = paginaActual >= totalPages - 1;
+                    siguiente.innerHTML = 'Siguiente <i class="fas fa-chevron-right"></i>';
+                    siguiente.onclick = () => cargarLogs(paginaActual + 1);
+                    paginacion.appendChild(siguiente);
+                }
+            }
+        } catch (e) {
+            body.innerHTML = `
+                <tr><td colspan="6" style="text-align:center;padding:28px;color:var(--danger);">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    No se pudieron cargar los logs.<br>
+                    <small>${esc(e.message)}</small>
+                </td></tr>`;
+            if (paginacion) paginacion.innerHTML = '';
+            if (info) info.textContent = '';
+        }
+    }
+    // --- Ping ------------------------------------------------------------------
+
+    let pingAbortController = null;
+    let scanAbortController = null;
+
+    function openPingModal() {
+        $('pingModal').style.display = 'block';
+    }
+
+    function closePingModal() {
+        cancelarPing();
+        $('pingModal').style.display = 'none';
+        $('pingResult').style.display = 'none';
+    }
+
+    function cancelarPing() {
+        if (pingAbortController) {
+            pingAbortController.abort();
+            pingAbortController = null;
+        }
+
+        if ($('btnPingSubmit')) {
+            $('btnPingSubmit').disabled = false;
+        }
+
+        if ($('btnPingCancel')) {
+            $('btnPingCancel').style.display = 'none';
+        }
+    }
+
+    async function realizarPing(e) {
+        e.preventDefault();
+
+        const host = $('ipAddress').value.trim();
+
+        $('pingResult').style.display = 'block';
+        $('pingOutput').textContent = 'Ejecutando ping a ' + host + '...';
+        $('btnPingSubmit').disabled = true;
+        $('btnPingCancel').style.display = 'inline-flex';
+
+        pingAbortController = new AbortController();
+
+        try {
+            const r = await fetch('/api/diagnostico/ping?ipAddress=' + encodeURIComponent(host), {
+                method: 'POST',
+                signal: pingAbortController.signal
+            });
+            const d = await r.json();
+
+            $('pingOutput').textContent = d.output || '';
+            $('diagnosticOutput').textContent = d.output || '';
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                $('pingOutput').textContent = 'Error: ' + err.message;
+            }
+        } finally {
+            $('btnPingSubmit').disabled = false;
+            $('btnPingCancel').style.display = 'none';
+            pingAbortController = null;
+        }
+    }
+
+    // --- Escaneo de puertos -----------------------------------------------------
+
+    function openPortScanModal() {
+        $('portScanModal').style.display = 'block';
+    }
+
+    function closePortScanModal() {
+        cancelarEscaneo();
+        $('portScanModal').style.display = 'none';
+        $('scanResult').style.display = 'none';
+    }
+
+    function cancelarEscaneo() {
+        if (scanAbortController) {
+            scanAbortController.abort();
+            scanAbortController = null;
+        }
+
+        if ($('btnScanSubmit')) {
+            $('btnScanSubmit').disabled = false;
+        }
+
+        if ($('btnScanCancel')) {
+            $('btnScanCancel').style.display = 'none';
+        }
+    }
+
+    function nivelClase(nivel) {
+
+    return String(nivel || 'BAJO')
+        .toLowerCase()
+        .replace('í', 'i')
+        .replace('é', 'e');
+}
+
+
+function renderizarResultadoEscaneo(d) {
+
+    const analysis =
+        d.securityAnalysis || {};
+
+    const puertos =
+        analysis.portDetails || [];
+
+    const nivelGeneral =
+        analysis.overallRisk || 'BAJO';
+
+
+    let html = `
+
+        <div class="scan-summary">
+
+            <div class="scan-summary-title">
+                📊 &nbsp;Resultado del Escaneo
+            </div>
+
+            <div class="scan-summary-row">
+                <strong>IP:</strong>
+                ${esc(d.ip || '')}
+            </div>
+
+            <div class="scan-summary-row">
+                <strong>Rango:</strong>
+                ${esc(d.portRange || '')}
+            </div>
+
+            <div class="scan-summary-row">
+                <strong>Puertos abiertos:</strong>
+                ${Number(analysis.totalOpenPorts || 0)}
+                de
+                ${Number(d.totalScanned || 0)}
+            </div>
+
+        </div>
+
+
+        <div class="scan-security">
+
+            <div class="scan-security-title">
+
+                🛡️ &nbsp;
+
+                Evaluación de Seguridad:
+
+                <span class="scan-risk ${nivelClase(nivelGeneral)}">
+
+                    ${esc(nivelGeneral)}
+
+                </span>
+
+            </div>
+
+
+            <div class="scan-counts">
+
+                <span class="scan-count critical">
+                    ● Críticos:
+                    ${Number(analysis.criticalPorts || 0)}
+                </span>
+
+                <span class="scan-count high">
+                    ● Altos:
+                    ${Number(analysis.highRiskPorts || 0)}
+                </span>
+
+                <span class="scan-count medium">
+                    ● Medios:
+                    ${Number(analysis.mediumRiskPorts || 0)}
+                </span>
+
+                <span class="scan-count low">
+                    ● Bajos:
+                    ${Number(analysis.lowRiskPorts || 0)}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="scan-open-title">
+
+            📋 &nbsp;Puertos Abiertos:
+
+        </div>
+
+    `;
+
+
+    if (!puertos.length) {
+
+        html += `
+
+            <div class="scan-port low">
+
+                <div class="scan-port-line">
+
+                    No se encontraron puertos
+                    abiertos en el rango indicado.
+
+                </div>
+
+            </div>
+
+        `;
+
+    } else {
+
+        puertos.forEach((p, index) => {
+
+            const clase =
+                nivelClase(p.riskLevel);
+
+            const detalleId =
+                'scan-detail-' + index;
+
+
+            /*
+             * Los detalles solo aparecen
+             * automáticamente para riesgos
+             * diferentes de BAJO.
+             */
+
+            const mostrarDetalles =
+                p.riskLevel !== 'BAJO';
+
+
+            html += `
+
+                <div class="scan-port ${clase}">
+
+                    <div class="scan-port-line">
+
+                        <span class="scan-port-name">
+
+                            Puerto ${Number(p.port)}/tcp
+
+                        </span>
+
+                        <span>-</span>
+
+                        <span>
+
+                            ${esc(
+                                p.service ||
+                                'desconocido'
+                            )}
+
+                        </span>
+
+                        <span class="scan-risk ${clase}">
+
+                            [${esc(
+                                p.riskLevel ||
+                                'BAJO'
+                            )}]
+
+                        </span>
+
+
+                        ${
+                            mostrarDetalles
+                            ?
+                            `
+                            <span
+                                style="
+                                    color:var(--text-muted);
+                                    cursor:pointer;
+                                "
+                                onclick="
+                                    toggleDetallePuerto(
+                                        '${detalleId}'
+                                    )
+                                "
+                            >
+                                ▼ Click para ver detalles
+                            </span>
+                            `
+                            :
+                            ''
+                        }
+
+                    </div>
+
+
+                    ${
+                        mostrarDetalles
+                        ?
+                        `
+                        <div
+                            id="${detalleId}"
+                            class="scan-details"
+                            style="display:none;"
+                        >
+
+                            <div>
+
+                                <strong>
+                                    Vulnerabilidad:
+                                </strong>
+
+                                ${esc(
+                                    p.vulnerability || ''
+                                ).replace(
+                                    /\\n/g,
+                                    '<br>'
+                                )}
+
+                            </div>
+
+
+                            <div style="margin-top:6px;">
+
+                                <strong>
+                                    Recomendación:
+                                </strong>
+
+                                ${esc(
+                                    p.recommendation || ''
+                                ).replace(
+                                    /\\n/g,
+                                    '<br>'
+                                )}
+
+                            </div>
+
+                        </div>
+                        `
+                        :
+                        ''
+                    }
+
+                </div>
+
+            `;
+
+        });
+
+    }
+
+
+    $('scanOutput').innerHTML = html;
+}
+
+
+function toggleDetallePuerto(id) {
+
+    const elemento = $(id);
+
+    if (!elemento) {
+        return;
+    }
+
+    elemento.style.display =
+        elemento.style.display === 'none'
+            ? 'block'
+            : 'none';
+}
+
+    async function realizarEscaneoPuertos(e) {
+        e.preventDefault();
+
+        const host = $('ipAddressScan').value.trim();
+        const range = $('portRange').value.trim();
+
+        $('scanResult').style.display = 'block';
+        $('scanOutput').textContent = 'Iniciando auditoría de puertos...';
+        $('btnScanSubmit').disabled = true;
+        $('btnScanCancel').style.display = 'inline-flex';
+
+        scanAbortController = new AbortController();
+
+        try {
+            const r = await fetch('/api/diagnostico/portscan?ipAddressScan=' + encodeURIComponent(host) + '&portRange=' + encodeURIComponent(range), {
+                method: 'POST',
+                signal: scanAbortController.signal
+            });
+            const d = await r.json();
+
+if (!r.ok) {
+    throw new Error(
+        d.output || 'No se pudo realizar el escaneo.'
+    );
+}
+
+renderizarResultadoEscaneo(d);
+
+$('diagnosticOutput').textContent =
+    d.output || '';
+        } finally {
+            $('btnScanSubmit').disabled = false;
+            $('btnScanCancel').style.display = 'none';
+            scanAbortController = null;
+        }
+    }
+
+    // --- Inicio -----------------------------------------------------------------
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadDashboard();
+        $('umbralAdvertencia').value = umbralAdvertencia;
+        $('umbralCritico').value = umbralCritico;
+    })
+</script>
+</body>
+</html>
