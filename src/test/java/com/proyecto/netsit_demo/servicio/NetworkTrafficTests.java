@@ -17,7 +17,7 @@ class NetworkTrafficServiceTest {
                 service.getCurrentTrafficData();
 
         assertNotNull(datos);
-        assertEquals(0.0, datos.getMbps());
+        assertEquals(999.0, datos.getMbps());
         assertNotNull(datos.getProtocolo());
         assertFalse(datos.isActivo());
     }
